@@ -1029,3 +1029,4 @@ target_link_libraries(graspit_collision_tests
 
 
 endif(BUILD_TESTS)
+

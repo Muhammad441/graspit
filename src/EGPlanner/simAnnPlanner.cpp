@@ -32,6 +32,7 @@
 //#define GRASPITDBG
 #include "graspit/debug.h"
 
+#include "graspit/grasp.h"
 //! How many of the best states are buffered. Should be a parameter
 #define BEST_LIST_SIZE 20
 //! Two states within this distance of each other are considered to be in the same neighborhood
@@ -107,7 +108,8 @@ SimAnnPlanner::setModelState(const GraspPlanningState *modelState)
   }
   invalidateReset();
 }
-
+double a = 0;
+#include "my_stuff.h"
 void
 SimAnnPlanner::mainLoop()
 {
@@ -117,32 +119,82 @@ SimAnnPlanner::mainLoop()
   }
 
   //call sim ann
-  SimAnn::Result result = mSimAnn->iterate(mCurrentState, mEnergyCalculator, input);
-  if (result == SimAnn::FAIL) {
-    DBGP("Sim ann failed");
-    return;
-  }
-  DBGP("Sim Ann success");
 
-  //put result in list if there's room or it's better than the worst solution so far
-  double worstEnergy;
-  if ((int)mBestList.size() < BEST_LIST_SIZE) { worstEnergy = 1.0e5; }
-  else { worstEnergy = mBestList.back()->getEnergy(); }
-  if (result == SimAnn::JUMP && mCurrentState->getEnergy() < worstEnergy) {
-    GraspPlanningState *insertState = new GraspPlanningState(mCurrentState);
-    //but check if a similar solution is already in there
-    if (!addToListOfUniqueSolutions(insertState, &mBestList, 0.2)) {
-      delete insertState;
-    } else {
-      mBestList.sort(GraspPlanningState::compareStates);
-      while ((int)mBestList.size() > BEST_LIST_SIZE) {
-        delete(mBestList.back());
-        mBestList.pop_back();
-      }
-    }
-  }
-  render();
-  mCurrentStep = mSimAnn->getCurrentStep();
-  if (mCurrentStep % 100 == 0 && !mMultiThread) { Q_EMIT update(); }
-  if (mMaxSteps == 200) {DBGP("Child at " << mCurrentStep << " steps");}
+  //-------------------------My stuff-------------------------
+
+  my_stuff_evaluate_grasps();
+  // double energy;
+  // bool legal;
+  // mEnergyCalculator->analyzeState(legal, energy, mCurrentState);
+  // // std::cerr<<"legal: "<<legal<<" energy "<<energy<<'\n';
+  // // std::cerr<<"Position "<<mCurrentState->getPosition()->getNumVariables()<<" Posture "<<mCurrentState->getPosture()->getNumVariables()<<'\n';
+  // PositionState* current_state = mCurrentState->getPosition();
+  // PostureState* current_state_posture = mCurrentState->getPosture();
+  //
+  // // std::cerr<<"x "<<current_state->readVariable(0)<<' '<< current_state->readVariable(1)<<" "<<current_state->readVariable(2)<<
+  // // " "<<current_state->readVariable(3)<<" "<<current_state->readVariable(4)<<" "<<current_state->readVariable(5)<<'\n';
+  // SearchVariable *var;
+  // // v = current_state->readVariable(2) - 10;
+  // double v;
+  // var = current_state_posture->getVariable(0);
+  // v = 0.20;
+  // var->setValue(v);
+  //
+  // vec3 newTranslation(0.134 * 1000.0,
+  //                     0.114 * 1000.0,
+  //                     0.17 * 1000.0);
+  //
+  // Quaternion newRotation(0.008,
+  //                       -0.3424,
+  //                        0.939,
+  //                        0.0089
+  //                        );
+  //
+  // transf newTransform(newRotation, newTranslation);
+  // current_state->setTran(newTransform);
+  //
+  // // current_state->print();
+  // mEnergyCalculator->analyzeState(legal, energy, mCurrentState);
+  // a+=1;
+  // // if(v==0)
+  // // {
+  // // current_state->print();
+  // std::cerr<<"legal: "<<legal<<" energy "<<energy<<" "<<a<<'\n';
+  // // // std::cerr<<"Position "<<mCurrentState->getPosition()->getNumVariables()<<" Posture "<<mCurrentState->getPosture()->getNumVariables()<<'\n';
+  // // }
+  //
+  // // render();
+
+  //------------------------My stuff-----------------------------
+
+  // SimAnn::Result result = mSimAnn->iterate(mCurrentState, mEnergyCalculator, input);
+  // if (result == SimAnn::FAIL) {
+  //   DBGP("Sim ann failed");
+  //   return;
+  // }
+  // DBGP("Sim Ann success");
+  // //
+  // // //put result in list if there's room or it's better than the worst solution so far
+  // double worstEnergy;
+  // if ((int)mBestList.size() < BEST_LIST_SIZE) { worstEnergy = 1.0e5; }
+  // else { worstEnergy = mBestList.back()->getEnergy(); }
+  // if (result == SimAnn::JUMP && mCurrentState->getEnergy() < worstEnergy) {
+  //   GraspPlanningState *insertState = new GraspPlanningState(mCurrentState);
+  //   //but check if a similar solution is already in there
+  //   if (!addToListOfUniqueSolutions(insertState, &mBestList, 0.2)) {
+  //     delete insertState;
+  //   } else {
+  //     mBestList.sort(GraspPlanningState::compareStates);
+  //     while ((int)mBestList.size() > BEST_LIST_SIZE) {
+  //       delete(mBestList.back());
+  //       mBestList.pop_back();
+  //     }
+  //   }
+  // }
+  // render();
+  std::cerr<<" Not Here"<<'\n';
+  mCurrentStep = 60000;
+  // mCurrentStep = mSimAnn->getCurrentStep();
+  // if (mCurrentStep % 100 == 0 && !mMultiThread) { Q_EMIT update(); }
+  // if (mMaxSteps == 200) {DBGP("Child at " << mCurrentStep << " steps");}
 }

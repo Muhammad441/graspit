@@ -38,7 +38,6 @@
 #include "graspit/gloveInterface.h" //for glove input
 #include "graspit/eigenGrasp.h" //for glove input
 #include "graspit/Collision/collisionInterface.h"
-
 #include "graspit/EGPlanner/energy/searchEnergyFactory.h"
 
 //#define GRASPITDBG
@@ -358,7 +357,7 @@ EGPlanner::startThread()
   //done in the main thread
   mHand->getWorld()->addElementToSceneGraph(mHand);
 }
-
+#include <fstream>
 void
 EGPlanner::startPlanner()
 {

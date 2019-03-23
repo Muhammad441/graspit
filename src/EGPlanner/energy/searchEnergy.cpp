@@ -206,7 +206,3 @@ SearchEnergy *SearchEnergy::getSearchEnergy(std::string type)
   se->setType(type);
   return se;
 }
-
-
-
-

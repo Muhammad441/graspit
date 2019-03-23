@@ -54,6 +54,7 @@ class SimAnnPlanner : public EGPlanner
     SimAnnPlanner() {}
     //! Calls a simulated annealing step and buffers the best solutions
     void mainLoop();
+    void my_stuff_evaluate_grasps();
     //! Also resets the simulated annealer
     void resetParameters();
   public:

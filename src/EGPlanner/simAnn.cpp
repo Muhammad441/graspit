@@ -93,21 +93,86 @@ void SimAnn::reset()
 
   See SimAnn::Result declaration for possible return values.
 */
+double b;
 SimAnn::Result
 SimAnn::iterate(GraspPlanningState *currentState, SearchEnergy *energyCalculator, GraspPlanningState *targetState)
 {
   //using different cooling constants for probs and neighbors
-  double T = cooling(mT0, mParams.YC, mCurrentStep, mParams.YDIMS);
-
+ double T = cooling(mT0, mParams.YC, mCurrentStep, mParams.YDIMS);
   //attempt to compute a neighbor of the current state
+
   GraspPlanningState *newState;
+
   double energy; bool legal = false;
   int attempts = 0; int maxAttempts = 10;
   DBGP("Ngbr gen loop");
   while (!legal && attempts <= maxAttempts) {
     newState = stateNeighbor(currentState, T * mParams.NBR_ADJ, targetState);
     DBGP("Analyze state...");
+//------------My stuff-------------------------------
+
+    PositionState* current_state = newState->getPosition();
+    PostureState* current_state_posture = newState->getPosture();
+    // 
+    // std::cerr<<"x "<<current_state->readVariable(0)<<' '<< current_state->readVariable(1)<<" "<<current_state->readVariable(2)<<
+    // " "<<current_state->readVariable(3)<<" "<<current_state->readVariable(4)<<" "<<current_state->readVariable(5)<<'\n';
+    SearchVariable *var;
+    // v = current_state->readVariable(2) - 10;
+    double v;
+    // var = current_state->getVariable(0);
+    // v = 100.83;
+    // var->setValue(v);
+    //
+    // var = current_state->getVariable(1);
+    // v = 33.317;
+    // var->setValue(v);
+    //
+    // var = current_state->getVariable(2);
+    // v = 175.8;
+    // var->setValue(v);
+    //
+    // var = current_state->getVariable(3);
+    //
+    // v = 0.5;
+    // var->setValue(v);
+    // //
+    // var = current_state->getVariable(4);
+    // b += 0.1;
+    // // v = -0.78;
+    // var->setValue(b);
+    // //
+    // var = current_state->getVariable(5);
+    // v = 2.70;
+    // var->setValue(v);
+
+    // var =
+
+    var = current_state_posture->getVariable(0);
+    v = 0.25;
+    var->setValue(v);
+
+
+
+    vec3 newTranslation(0.134 * 1000.0,
+                        0.114 * 1000.0,
+                        0.17 * 1000.0);
+
+
+    Quaternion newRotation(0.008,
+                          -0.3424,
+                           0.939,
+                           0.0089
+                           );
+
+    transf newTransform(newRotation, newTranslation);
+    current_state->setTran(newTransform);
+
+b+=1;
+//------------My stuff-------------------------------
     energyCalculator->analyzeState(legal, energy, newState);
+    std::cerr<<"Energy: "<<energy<<" Legal: "<<legal<<" "<<b<<'\n';
+    // PRINTMSG("Energy: " << energy);
+    // PRINTMSG("Legal: " << legal);
     DBGP("Analysis done.");
     if (!legal) { delete newState; }
     attempts++;
@@ -127,6 +192,16 @@ SimAnn::iterate(GraspPlanningState *currentState, SearchEnergy *energyCalculator
   newState->setEnergy(energy);
   newState->setLegal(true);
   newState->setItNumber(mCurrentStep);
+
+//-------------My stuff-----------------------
+  // if(energy < -1)
+  {
+    newState->getPosition()->print();
+    newState->getPosture()->print();
+    std::cerr<<"Legal "<<legal<<" Energy "<<energy<<'\n';
+  }
+//-------------My stuff-----------------------
+
 
   //using different cooling constants for probs and neighbors
   T = cooling(mT0, mParams.HC, mCurrentStep, mParams.HDIMS);
